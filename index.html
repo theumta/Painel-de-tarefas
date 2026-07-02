@@ -595,17 +595,17 @@
 <div class="stats-row">
   <div class="stat-card">
     <div class="stat-label">Compromissos</div>
-    <div class="stat-value" style="color:var(--accent)">3</div>
+    <div class="stat-value" style="color:var(--accent)" id="stat-compromissos">0</div>
     <div class="stat-sub">hoje na agenda</div>
   </div>
   <div class="stat-card">
     <div class="stat-label">Tarefas</div>
-    <div class="stat-value" style="color:var(--yellow)">4</div>
-    <div class="stat-sub">2 concluídas</div>
+    <div class="stat-value" style="color:var(--yellow)">0</div>
+    <div class="stat-sub">pendentes</div>
   </div>
   <div class="stat-card">
     <div class="stat-label">Revisões</div>
-    <div class="stat-value" style="color:var(--green)">3</div>
+    <div class="stat-value" style="color:var(--green)">0</div>
     <div class="stat-sub">sugeridas pela IA</div>
   </div>
 </div>
@@ -631,34 +631,8 @@
   <div class="card">
     <div class="card-title"><div class="card-title-dot"></div>Agenda de hoje</div>
 
-    <div class="agenda-item">
-      <div class="agenda-time">07:00</div>
-      <div class="agenda-bar" style="background:var(--accent)"></div>
-      <div class="agenda-info">
-        <div class="agenda-title">Plantão — Clínica Médica</div>
-        <div class="agenda-loc">HGE · até 13:00</div>
-        <div class="agenda-src">Outlook</div>
-      </div>
-    </div>
-
-    <div class="agenda-item">
-      <div class="agenda-time">15:00</div>
-      <div class="agenda-bar" style="background:var(--purple)"></div>
-      <div class="agenda-info">
-        <div class="agenda-title">Reunião de grupo — caso clínico</div>
-        <div class="agenda-loc">Sala 3 · FCE</div>
-        <div class="agenda-src">Outlook</div>
-      </div>
-    </div>
-
-    <div class="agenda-item">
-      <div class="agenda-time">18:00</div>
-      <div class="agenda-bar" style="background:var(--yellow)"></div>
-      <div class="agenda-info">
-        <div class="agenda-title">Seminário — Urgência e Emergência</div>
-        <div class="agenda-loc">Anfiteatro B</div>
-        <div class="agenda-src">Outlook</div>
-      </div>
+    <div class="agenda-item" id="agenda-vazia">
+      <div class="agenda-info" style="color:var(--text-3); font-size:13px; padding: 8px 0;">Carregando eventos do Outlook...</div>
     </div>
     <button class="criar-evento-btn" onclick="abrirModalCriar()">+ Criar novo evento no Outlook</button>
   </div>
@@ -666,31 +640,7 @@
   <div class="card">
     <div class="card-title"><div class="card-title-dot" style="background:var(--green)"></div>Checklist do dia</div>
 
-    <div class="task-item">
-      <div class="check-box done" onclick="toggleTask(this)"></div>
-      <span class="task-text done">Ler resumo pré-plantão</span>
-      <span class="task-tag tag-done">feito</span>
-    </div>
-    <div class="task-item">
-      <div class="check-box done" onclick="toggleTask(this)"></div>
-      <span class="task-text done">Preencher caderneta</span>
-      <span class="task-tag tag-done">feito</span>
-    </div>
-    <div class="task-item">
-      <div class="check-box" onclick="toggleTask(this)"></div>
-      <span class="task-text">Revisão pneumologia</span>
-      <span class="task-tag tag-pending">pendente</span>
-    </div>
-    <div class="task-item">
-      <div class="check-box" onclick="toggleTask(this)"></div>
-      <span class="task-text">Preparar seminário</span>
-      <span class="task-tag tag-pending">pendente</span>
-    </div>
-    <div class="task-item">
-      <div class="check-box" onclick="toggleTask(this)"></div>
-      <span class="task-text">Revisar caso clínico</span>
-      <span class="task-tag tag-urgent">urgente</span>
-    </div>
+    <div style="color:var(--text-3); font-size:13px; padding: 8px 0;">Nenhuma tarefa ainda. Conecte o Microsoft To Do para sincronizar.</div>
   </div>
 </div>
 
@@ -698,48 +648,7 @@
 <div class="revisao-card">
   <div class="card-title"><div class="card-title-dot" style="background:var(--purple)"></div>Revisões · desempenho por assunto</div>
 
-  <div class="revisao-item">
-    <div class="revisao-area">CLÍNICA</div>
-    <div class="revisao-subject">Pneumologia</div>
-    <div class="bar-wrap"><div class="bar" style="width:32%; background:var(--red)"></div></div>
-    <div class="perc">32%</div>
-    <span class="prio-tag prio-high">prioridade alta</span>
-  </div>
-  <div class="revisao-item">
-    <div class="revisao-area">CLÍNICA</div>
-    <div class="revisao-subject">Cardiologia</div>
-    <div class="bar-wrap"><div class="bar" style="width:61%; background:var(--accent)"></div></div>
-    <div class="perc">61%</div>
-    <span class="prio-tag prio-med">manter ritmo</span>
-  </div>
-  <div class="revisao-item">
-    <div class="revisao-area">CIRURGIA</div>
-    <div class="revisao-subject">Abdome agudo</div>
-    <div class="bar-wrap"><div class="bar" style="width:45%; background:var(--yellow)"></div></div>
-    <div class="perc">45%</div>
-    <span class="prio-tag prio-med">atenção</span>
-  </div>
-  <div class="revisao-item">
-    <div class="revisao-area">PEDIATRIA</div>
-    <div class="revisao-subject">Neonatologia</div>
-    <div class="bar-wrap"><div class="bar" style="width:38%; background:var(--red)"></div></div>
-    <div class="perc">38%</div>
-    <span class="prio-tag prio-high">prioridade alta</span>
-  </div>
-  <div class="revisao-item">
-    <div class="revisao-area">GINECO</div>
-    <div class="revisao-subject">Pré-natal</div>
-    <div class="bar-wrap"><div class="bar" style="width:78%; background:var(--green)"></div></div>
-    <div class="perc">78%</div>
-    <span class="prio-tag prio-ok">em dia</span>
-  </div>
-  <div class="revisao-item">
-    <div class="revisao-area">CLÍNICA</div>
-    <div class="revisao-subject">Farmacologia clínica</div>
-    <div class="bar-wrap"><div class="bar" style="width:55%; background:var(--purple)"></div></div>
-    <div class="perc">55%</div>
-    <span class="prio-tag prio-med">atenção</span>
-  </div>
+  <div style="color:var(--text-3); font-size:13px; padding: 8px 0;">Nenhuma revisão cadastrada ainda. Conecte o Notion para sincronizar seu desempenho.</div>
 </div>
 
 <!-- Chat com IA -->
@@ -960,27 +869,16 @@
           + '</div>';
         container.appendChild(div);
       });
-      document.querySelector('.stat-value').textContent = eventos.length;
+      const statEl = document.getElementById('stat-compromissos'); if(statEl) statEl.textContent = eventos.length; const vazio = document.getElementById('agenda-vazia'); if(vazio) vazio.remove();
     } catch(e) { console.log('Agenda: usando dados de exemplo', e.message); }
   }
 
   carregarAgenda();
 
   // Dados de revisão para contexto da IA
-  const revisoes = [
-    { area: 'Clínica Médica', assunto: 'Pneumologia', perc: 32 },
-    { area: 'Clínica Médica', assunto: 'Cardiologia', perc: 61 },
-    { area: 'Cirurgia', assunto: 'Abdome agudo', perc: 45 },
-    { area: 'Pediatria', assunto: 'Neonatologia', perc: 38 },
-    { area: 'Ginecologia', assunto: 'Pré-natal', perc: 78 },
-    { area: 'Clínica Médica', assunto: 'Farmacologia clínica', perc: 55 },
-  ];
+  const revisoes = [];
 
-  const agenda = [
-    { hora: '07:00', titulo: 'Plantão — Clínica Médica', local: 'HGE, até 13:00' },
-    { hora: '15:00', titulo: 'Reunião de grupo — caso clínico', local: 'Sala 3, FCE' },
-    { hora: '18:00', titulo: 'Seminário — Urgência e Emergência', local: 'Anfiteatro B' },
-  ];
+  const agenda = [];
 
   function buildContexto() {
     const rev = revisoes.map(r => `${r.assunto} (${r.area}): ${r.perc}% de acertos`).join('; ');
@@ -1063,7 +961,7 @@
         body: JSON.stringify({
           model: 'claude-sonnet-4-6',
           max_tokens: 1000,
-          system: buildContexto(),
+          system: buildContexto() + `\n\nREGRA CRÍTICA: Se a mensagem do usuário contém intenção de CRIAR, ADICIONAR, MARCAR ou AGENDAR um evento, compromisso, reunião, plantão, consulta ou qualquer compromisso na agenda, você DEVE responder SOMENTE com este JSON exato, sem nenhum texto antes ou depois:\n{"acao":"criar_evento","titulo":"TITULO_DO_EVENTO","hora_inicio":"YYYY-MM-DDTHH:MM:00","hora_fim":"YYYY-MM-DDTHH:MM:00","local":"LOCAL_OU_VAZIO","descricao":""}\nUse a data atual (${new Date().toISOString().slice(0,10)}) como referência para "hoje" e calcule "amanhã" como ${new Date(Date.now()+86400000).toISOString().slice(0,10)}. Se o usuário não informar horário de fim, some 1 hora ao início. Para qualquer outra pergunta (dúvidas clínicas, estudos, revisões), responda normalmente em português.`,
           messages: historico
         })
       });
