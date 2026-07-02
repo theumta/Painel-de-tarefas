@@ -467,6 +467,99 @@
     letter-spacing: 0.05em;
   }
 
+
+  /* Modal de evento */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    width: 100%;
+    max-width: 440px;
+    margin: 16px;
+  }
+  .modal-title {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .modal-close {
+    background: none;
+    border: none;
+    color: var(--text-3);
+    font-size: 18px;
+    cursor: pointer;
+    padding: 0;
+  }
+  .modal-close:hover { color: var(--text); }
+  .form-group { margin-bottom: 12px; }
+  .form-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-3);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+    display: block;
+  }
+  .form-input {
+    width: 100%;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 9px 12px;
+    font-size: 13px;
+    color: var(--text);
+    outline: none;
+    font-family: var(--sans);
+    transition: border-color 0.15s;
+  }
+  .form-input:focus { border-color: var(--accent); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .modal-actions { display: flex; gap: 8px; margin-top: 16px; justify-content: flex-end; }
+  .btn-danger { background: var(--red-dim); color: var(--red); border: 1px solid var(--red); }
+  .btn-danger:hover { opacity: 0.8; }
+  .agenda-edit-btn {
+    background: none;
+    border: none;
+    color: var(--text-3);
+    cursor: pointer;
+    font-size: 12px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 4px;
+  }
+  .agenda-edit-btn:hover { color: var(--accent); background: var(--accent-dim); }
+  /* Botão criar evento */
+  .criar-evento-btn {
+    width: 100%;
+    margin-top: 10px;
+    background: var(--surface-2);
+    border: 1px dashed var(--border-strong);
+    border-radius: 8px;
+    padding: 8px;
+    color: var(--text-3);
+    font-size: 12px;
+    cursor: pointer;
+    font-family: var(--sans);
+    transition: all 0.15s;
+  }
+  .criar-evento-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+
   @media (max-width: 600px) {
     .grid-2 { grid-template-columns: 1fr; }
     .stats-row { grid-template-columns: repeat(2, 1fr); }
@@ -567,6 +660,7 @@
         <div class="agenda-src">Outlook</div>
       </div>
     </div>
+    <button class="criar-evento-btn" onclick="abrirModalCriar()">+ Criar novo evento no Outlook</button>
   </div>
 
   <div class="card">
@@ -652,11 +746,49 @@
 <div class="chat-section">
   <div class="card-title"><div class="card-title-dot" style="background:var(--yellow)"></div>Pergunte à IA sobre seus estudos</div>
   <div class="chat-messages" id="chat-messages">
-    <div class="msg msg-ai">Olá, Matheus! Posso te ajudar com dúvidas clínicas, sugerir o que revisar ou explicar algum tema do internato. O que precisa?</div>
+    <div class="msg msg-ai">Olá, Matheus! Posso te ajudar com dúvidas clínicas, sugerir revisões, ou <strong>criar eventos no Outlook</strong> — é só dizer algo como "amanhã às 14h tenho consulta no ambulatório de cardiologia".</div>
   </div>
   <div class="chat-input-row">
-    <input class="chat-input" id="chat-input" placeholder="Ex: quais os critérios de Ranson para pancreatite?" onkeydown="if(event.key==='Enter') enviarMensagem()">
+    <input class="chat-input" id="chat-input" placeholder="Dúvida clínica ou crie eventos: 'amanhã às 14h consulta no ambulatório'" onkeydown="if(event.key==='Enter') enviarMensagem()">
     <button class="btn" onclick="enviarMensagem()">Enviar</button>
+  </div>
+</div>
+
+
+<!-- Modal editar/criar evento -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-title">
+      <span id="modal-titulo-label">Editar evento</span>
+      <button class="modal-close" onclick="fecharModal()">×</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Título</label>
+      <input class="form-input" id="ev-titulo" placeholder="Ex: Plantão Clínica Médica">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Início</label>
+        <input class="form-input" id="ev-inicio" type="datetime-local">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Fim</label>
+        <input class="form-input" id="ev-fim" type="datetime-local">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Local</label>
+      <input class="form-input" id="ev-local" placeholder="Ex: HGE, Anfiteatro B">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Descrição (opcional)</label>
+      <input class="form-input" id="ev-descricao" placeholder="Detalhes adicionais">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-sm" onclick="fecharModal()">Cancelar</button>
+      <button class="btn" id="modal-salvar-btn" onclick="salvarEvento()">Salvar no Outlook</button>
+    </div>
+    <div id="modal-status" style="font-size:12px; color:var(--text-3); margin-top:10px; text-align:center;"></div>
   </div>
 </div>
 
@@ -692,6 +824,94 @@
     st.style.color = 'var(--green)';
   }
 
+
+  // URLs dos webhooks Make
+  const WEBHOOK_CRIAR = 'https://hook.us2.make.com/vj8vv5lqt2l9rdxgkchzl1rwsub4igy6';
+  const WEBHOOK_EDITAR = 'https://hook.us2.make.com/1941gbfb5lnrh39jqdaza7khyarlj5n6';
+
+  // Estado do modal
+  let modoModal = 'criar'; // 'criar' ou 'editar'
+  let eventoIdAtual = null;
+
+  function abrirModalCriar() {
+    modoModal = 'criar';
+    eventoIdAtual = null;
+    document.getElementById('modal-titulo-label').textContent = 'Novo evento no Outlook';
+    document.getElementById('ev-titulo').value = '';
+    document.getElementById('ev-inicio').value = '';
+    document.getElementById('ev-fim').value = '';
+    document.getElementById('ev-local').value = '';
+    document.getElementById('ev-descricao').value = '';
+    document.getElementById('modal-status').textContent = '';
+    document.getElementById('modal-overlay').classList.add('open');
+  }
+
+  function abrirModalEditar(id, titulo, inicio, fim, local, descricao) {
+    modoModal = 'editar';
+    eventoIdAtual = id;
+    document.getElementById('modal-titulo-label').textContent = 'Editar evento';
+    document.getElementById('ev-titulo').value = titulo || '';
+    document.getElementById('ev-inicio').value = inicio || '';
+    document.getElementById('ev-fim').value = fim || '';
+    document.getElementById('ev-local').value = local || '';
+    document.getElementById('ev-descricao').value = descricao || '';
+    document.getElementById('modal-status').textContent = '';
+    document.getElementById('modal-overlay').classList.add('open');
+  }
+
+  function fecharModal() {
+    document.getElementById('modal-overlay').classList.remove('open');
+  }
+
+  async function salvarEvento() {
+    const titulo = document.getElementById('ev-titulo').value.trim();
+    const inicio = document.getElementById('ev-inicio').value;
+    const fim = document.getElementById('ev-fim').value;
+    const local = document.getElementById('ev-local').value.trim();
+    const descricao = document.getElementById('ev-descricao').value.trim();
+    const status = document.getElementById('modal-status');
+
+    if (!titulo || !inicio || !fim) {
+      status.textContent = '⚠ Preencha título, início e fim.';
+      status.style.color = 'var(--yellow)';
+      return;
+    }
+
+    const btn = document.getElementById('modal-salvar-btn');
+    btn.disabled = true;
+    btn.textContent = 'Salvando...';
+    status.textContent = '';
+
+    try {
+      const url = modoModal === 'criar' ? WEBHOOK_CRIAR : WEBHOOK_EDITAR;
+      const body = modoModal === 'criar'
+        ? { titulo, hora_inicio: inicio, hora_fim: fim, local, descricao }
+        : { evento_id: eventoIdAtual, titulo, hora_inicio: inicio, hora_fim: fim, local, descricao };
+
+      await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+
+      status.textContent = modoModal === 'criar' ? '✓ Evento criado no Outlook!' : '✓ Evento atualizado no Outlook!';
+      status.style.color = 'var(--green)';
+      btn.textContent = 'Salvar no Outlook';
+      btn.disabled = false;
+      setTimeout(() => { fecharModal(); carregarAgenda(); }, 1500);
+    } catch(e) {
+      status.textContent = 'Erro ao salvar: ' + e.message;
+      status.style.color = 'var(--red)';
+      btn.textContent = 'Salvar no Outlook';
+      btn.disabled = false;
+    }
+  }
+
+  // Fechar modal clicando fora
+  document.getElementById('modal-overlay').addEventListener('click', function(e) {
+    if (e.target === this) fecharModal();
+  });
+
   // Toggle tarefa
   function toggleTask(el) {
     el.classList.toggle('done');
@@ -706,6 +926,32 @@
       tag.className = 'task-tag tag-pending';
     }
   }
+
+  // Buscar agenda real do Outlook via Make webhook
+  const WEBHOOK_AGENDA = 'https://hook.us2.make.com/fjn0jp8dm4lrlce6izsyzkgdtseh9b2c';
+
+  async function carregarAgenda() {
+    try {
+      const res = await fetch(WEBHOOK_AGENDA);
+      const data = await res.json();
+      const eventos = Array.isArray(data) ? data : [data];
+      const cards = document.querySelectorAll('.card');
+      const container = cards[0];
+      if (!container || !eventos.length) return;
+      container.querySelectorAll('.agenda-item').forEach(el => el.remove());
+      const cores = ['var(--accent)', 'var(--purple)', 'var(--yellow)', 'var(--green)', 'var(--red)'];
+      eventos.forEach((ev, i) => {
+        const hora = ev.hora ? new Date(ev.hora).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '--:--';
+        const div = document.createElement('div');
+        div.className = 'agenda-item';
+        const evId = ev.id || i; div.innerHTML = '<div class="agenda-time">' + hora + '</div><div class="agenda-bar" style="background:' + cores[i % cores.length] + '"></div><div class="agenda-info"><div class="agenda-title">' + (ev.titulo || 'Sem título') + '<button class="agenda-edit-btn" onclick="abrirModalEditar(\'' + evId + '\',\'' + (ev.titulo||'').replace(/\'/g,\'\') + '\',\'' + (ev.hora||'') + '\',\'' + (ev.hora_fim||'') + '\',\'' + (ev.local||'').replace(/\'/g,\'\') + '\',\'\')" title="Editar">✎</button></div><div class="agenda-loc">' + (ev.local || 'Sem local') + '</div><div class="agenda-src">Outlook</div></div>';
+        container.appendChild(div);
+      });
+      document.querySelector('.stat-value').textContent = eventos.length;
+    } catch(e) { console.log('Agenda: usando dados de exemplo', e.message); }
+  }
+
+  carregarAgenda();
 
   // Dados de revisão para contexto da IA
   const revisoes = [
@@ -753,7 +999,7 @@
         body: JSON.stringify({
           model: 'claude-sonnet-4-6',
           max_tokens: 1000,
-          system: buildContexto(),
+          system: buildContexto() + ' Quando o usuário pedir para criar um evento (ex: "amanhã às 14h tenho consulta"), responda APENAS com um JSON no formato: {"acao":"criar_evento","titulo":"...","hora_inicio":"YYYY-MM-DDTHH:MM:00","hora_fim":"YYYY-MM-DDTHH:MM:00","local":"...","descricao":"..."} e nada mais. Para perguntas clínicas ou de estudo, responda normalmente em texto.',
           messages: [{
             role: 'user',
             content: `Com base na minha agenda de hoje e no meu desempenho nas revisões, me dê uma sugestão objetiva e personalizada do que priorizar hoje. Considere os horários livres da agenda. Seja direto e prático, em no máximo 3 frases.`
@@ -813,7 +1059,23 @@
       if (data.content && data.content[0]) {
         const resposta = data.content[0].text;
         historico.push({ role: 'assistant', content: resposta });
-        loadingEl.innerHTML = resposta.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        // Verifica se é JSON de criação de evento
+        try {
+          const parsed = JSON.parse(resposta.trim());
+          if (parsed.acao === 'criar_evento') {
+            await fetch(WEBHOOK_CRIAR, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ titulo: parsed.titulo, hora_inicio: parsed.hora_inicio, hora_fim: parsed.hora_fim, local: parsed.local || '', descricao: parsed.descricao || '' })
+            });
+            loadingEl.innerHTML = '✓ Evento <strong>' + parsed.titulo + '</strong> criado no Outlook para ' + new Date(parsed.hora_inicio).toLocaleString('pt-BR', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}) + '!';
+            setTimeout(() => carregarAgenda(), 1000);
+          } else {
+            loadingEl.innerHTML = resposta.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+          }
+        } catch(e) {
+          loadingEl.innerHTML = resposta.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        }
       } else {
         loadingEl.innerHTML = `<span style="color:var(--red)">Erro: ${data.error?.message || 'Resposta inesperada'}</span>`;
       }
