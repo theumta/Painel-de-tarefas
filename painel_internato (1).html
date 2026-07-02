@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel de Tarefas — Matheus</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #0f1117;
+    --surface: #181c27;
+    --surface-2: #1e2333;
+    --border: #2a2f42;
+    --border-strong: #3a4055;
+    --text: #e8eaf0;
+    --text-2: #9ba3bf;
+    --text-3: #606880;
+    --accent: #4f8ef7;
+    --accent-dim: #1a2a4a;
+    --green: #3ecf8e;
+    --green-dim: #0e2a1f;
+    --yellow: #f7c94f;
+    --yellow-dim: #2a220a;
+    --red: #f76060;
+    --red-dim: #2a0f0f;
+    --purple: #a78bfa;
+    --purple-dim: #1e1535;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'Inter', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 24px 20px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  /* Header */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 28px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .header-date {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-3);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .header-name {
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+  .header-sub {
+    font-size: 13px;
+    color: var(--text-2);
+    margin-top: 3px;
+  }
+  .sem-badge {
+    font-family: var(--mono);
+    font-size: 11px;
+    background: var(--accent-dim);
+    color: var(--accent);
+    border: 1px solid #2a3a5a;
+    padding: 5px 10px;
+    border-radius: 6px;
+    letter-spacing: 0.04em;
+  }
+
+  /* Stats row */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+  .stat-label {
+    font-size: 11px;
+    color: var(--text-3);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    font-family: var(--mono);
+  }
+  .stat-value {
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+  .stat-sub {
+    font-size: 12px;
+    color: var(--text-3);
+    margin-top: 4px;
+  }
+
+  /* AI suggestion box */
+  .ai-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin-bottom: 16px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .ai-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .ai-content {
+    font-size: 13.5px;
+    color: var(--text-2);
+    line-height: 1.6;
+    flex: 1;
+  }
+  .ai-content strong { color: var(--text); font-weight: 500; }
+  .ai-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--accent-dim);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 15px;
+  }
+  .ai-loading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-3);
+    font-size: 13px;
+  }
+  .dot-pulse {
+    display: flex;
+    gap: 4px;
+  }
+  .dot-pulse span {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 1.2s ease-in-out infinite;
+  }
+  .dot-pulse span:nth-child(2) { animation-delay: 0.2s; }
+  .dot-pulse span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes pulse {
+    0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); }
+    40% { opacity: 1; transform: scale(1); }
+  }
+
+  /* Grid 2 cols */
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  /* Cards */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+  }
+  .card-title {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-3);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .card-title-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  /* Agenda items */
+  .agenda-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .agenda-item:last-child { border-bottom: none; }
+  .agenda-time {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-3);
+    min-width: 40px;
+    padding-top: 2px;
+  }
+  .agenda-bar {
+    width: 2px;
+    min-height: 36px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+  .agenda-info { flex: 1; }
+  .agenda-title { font-size: 13px; color: var(--text); font-weight: 500; }
+  .agenda-loc { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+  .agenda-src {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-3);
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-top: 4px;
+    display: inline-block;
+  }
+
+  /* Checklist */
+  .task-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .task-item:last-child { border-bottom: none; }
+  .check-box {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    border: 1.5px solid var(--border-strong);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .check-box:hover { border-color: var(--accent); }
+  .check-box.done {
+    background: var(--green);
+    border-color: var(--green);
+  }
+  .check-box.done::after {
+    content: '';
+    display: block;
+    width: 4px;
+    height: 7px;
+    border: 1.5px solid #0f1117;
+    border-top: none;
+    border-left: none;
+    transform: rotate(45deg) translateY(-1px);
+  }
+  .task-text { font-size: 13px; color: var(--text); flex: 1; }
+  .task-text.done { color: var(--text-3); text-decoration: line-through; }
+  .task-tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-weight: 500;
+  }
+  .tag-done { background: var(--green-dim); color: var(--green); }
+  .tag-pending { background: var(--yellow-dim); color: var(--yellow); }
+  .tag-urgent { background: var(--red-dim); color: var(--red); }
+
+  /* Revisões */
+  .revisao-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin-bottom: 16px;
+  }
+  .revisao-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .revisao-item:last-child { border-bottom: none; }
+  .revisao-area {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-3);
+    letter-spacing: 0.04em;
+    min-width: 70px;
+  }
+  .revisao-subject { font-size: 13px; color: var(--text); flex: 1; }
+  .bar-wrap {
+    width: 90px;
+    height: 5px;
+    background: var(--surface-2);
+    border-radius: 3px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .bar { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
+  .perc {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-2);
+    min-width: 36px;
+    text-align: right;
+  }
+  .prio-tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 4px;
+    min-width: 80px;
+    text-align: center;
+  }
+  .prio-high { background: var(--red-dim); color: var(--red); }
+  .prio-med { background: var(--yellow-dim); color: var(--yellow); }
+  .prio-low { background: var(--green-dim); color: var(--green); }
+  .prio-ok { background: var(--purple-dim); color: var(--purple); }
+
+  /* API key input */
+  .api-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin-bottom: 16px;
+  }
+  .api-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-3);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .api-row { display: flex; gap: 8px; }
+  .api-input {
+    flex: 1;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 9px 12px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .api-input:focus { border-color: var(--accent); }
+  .api-input::placeholder { color: var(--text-3); }
+  .btn {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 7px;
+    padding: 9px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: var(--sans);
+    transition: opacity 0.15s;
+  }
+  .btn:hover { opacity: 0.85; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-sm {
+    padding: 6px 12px;
+    font-size: 12px;
+    background: var(--surface-2);
+    color: var(--text-2);
+    border: 1px solid var(--border);
+  }
+  .btn-sm:hover { border-color: var(--accent); color: var(--accent); opacity: 1; }
+
+  /* Chat com IA */
+  .chat-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin-bottom: 16px;
+  }
+  .chat-messages {
+    max-height: 200px;
+    overflow-y: auto;
+    margin-bottom: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .msg {
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    line-height: 1.55;
+  }
+  .msg-user {
+    background: var(--accent-dim);
+    color: var(--accent);
+    align-self: flex-end;
+    max-width: 80%;
+    border: 1px solid #2a3a5a;
+  }
+  .msg-ai {
+    background: var(--surface-2);
+    color: var(--text-2);
+    align-self: flex-start;
+    max-width: 90%;
+    border: 1px solid var(--border);
+  }
+  .msg-ai strong { color: var(--text); }
+  .chat-input-row { display: flex; gap: 8px; }
+  .chat-input {
+    flex: 1;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 9px 12px;
+    font-size: 13px;
+    color: var(--text);
+    outline: none;
+    font-family: var(--sans);
+    transition: border-color 0.15s;
+  }
+  .chat-input:focus { border-color: var(--accent); }
+  .chat-input::placeholder { color: var(--text-3); }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-3);
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    letter-spacing: 0.05em;
+  }
+
+  @media (max-width: 600px) {
+    .grid-2 { grid-template-columns: 1fr; }
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    .stats-row .stat-card:last-child { grid-column: span 2; }
+    body { padding: 16px 14px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div>
+    <div class="header-date" id="current-date">—</div>
+    <div class="header-name">Bom dia, Matheus</div>
+    <div class="header-sub">Internato · Todas as áreas</div>
+  </div>
+  <div class="sem-badge">10º SEM</div>
+</div>
+
+<!-- API Key -->
+<div class="api-section">
+  <div class="api-label">🔑 Chave da API Anthropic</div>
+  <div class="api-row">
+    <input class="api-input" id="api-key" type="password" placeholder="sk-ant-...">
+    <button class="btn" onclick="salvarChave()">Salvar</button>
+    <button class="btn btn-sm" onclick="gerarSugestao()">Gerar sugestão IA</button>
+  </div>
+  <div id="api-status" style="font-size:12px; color:var(--text-3); margin-top:8px;"></div>
+</div>
+
+<!-- Stats -->
+<div class="stats-row">
+  <div class="stat-card">
+    <div class="stat-label">Compromissos</div>
+    <div class="stat-value" style="color:var(--accent)">3</div>
+    <div class="stat-sub">hoje na agenda</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Tarefas</div>
+    <div class="stat-value" style="color:var(--yellow)">4</div>
+    <div class="stat-sub">2 concluídas</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Revisões</div>
+    <div class="stat-value" style="color:var(--green)">3</div>
+    <div class="stat-sub">sugeridas pela IA</div>
+  </div>
+</div>
+
+<!-- Sugestão IA -->
+<div class="ai-box">
+  <div class="ai-icon">✦</div>
+  <div style="flex:1">
+    <div class="ai-label">Sugestão do dia · IA</div>
+    <div class="ai-content" id="ai-suggestion">
+      <div class="ai-loading">
+        <div class="dot-pulse">
+          <span></span><span></span><span></span>
+        </div>
+        Insira sua chave API e clique em "Gerar sugestão IA"
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Agenda + Checklist -->
+<div class="grid-2">
+  <div class="card">
+    <div class="card-title"><div class="card-title-dot"></div>Agenda de hoje</div>
+
+    <div class="agenda-item">
+      <div class="agenda-time">07:00</div>
+      <div class="agenda-bar" style="background:var(--accent)"></div>
+      <div class="agenda-info">
+        <div class="agenda-title">Plantão — Clínica Médica</div>
+        <div class="agenda-loc">HGE · até 13:00</div>
+        <div class="agenda-src">Outlook</div>
+      </div>
+    </div>
+
+    <div class="agenda-item">
+      <div class="agenda-time">15:00</div>
+      <div class="agenda-bar" style="background:var(--purple)"></div>
+      <div class="agenda-info">
+        <div class="agenda-title">Reunião de grupo — caso clínico</div>
+        <div class="agenda-loc">Sala 3 · FCE</div>
+        <div class="agenda-src">Outlook</div>
+      </div>
+    </div>
+
+    <div class="agenda-item">
+      <div class="agenda-time">18:00</div>
+      <div class="agenda-bar" style="background:var(--yellow)"></div>
+      <div class="agenda-info">
+        <div class="agenda-title">Seminário — Urgência e Emergência</div>
+        <div class="agenda-loc">Anfiteatro B</div>
+        <div class="agenda-src">Outlook</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><div class="card-title-dot" style="background:var(--green)"></div>Checklist do dia</div>
+
+    <div class="task-item">
+      <div class="check-box done" onclick="toggleTask(this)"></div>
+      <span class="task-text done">Ler resumo pré-plantão</span>
+      <span class="task-tag tag-done">feito</span>
+    </div>
+    <div class="task-item">
+      <div class="check-box done" onclick="toggleTask(this)"></div>
+      <span class="task-text done">Preencher caderneta</span>
+      <span class="task-tag tag-done">feito</span>
+    </div>
+    <div class="task-item">
+      <div class="check-box" onclick="toggleTask(this)"></div>
+      <span class="task-text">Revisão pneumologia</span>
+      <span class="task-tag tag-pending">pendente</span>
+    </div>
+    <div class="task-item">
+      <div class="check-box" onclick="toggleTask(this)"></div>
+      <span class="task-text">Preparar seminário</span>
+      <span class="task-tag tag-pending">pendente</span>
+    </div>
+    <div class="task-item">
+      <div class="check-box" onclick="toggleTask(this)"></div>
+      <span class="task-text">Revisar caso clínico</span>
+      <span class="task-tag tag-urgent">urgente</span>
+    </div>
+  </div>
+</div>
+
+<!-- Revisões -->
+<div class="revisao-card">
+  <div class="card-title"><div class="card-title-dot" style="background:var(--purple)"></div>Revisões · desempenho por assunto</div>
+
+  <div class="revisao-item">
+    <div class="revisao-area">CLÍNICA</div>
+    <div class="revisao-subject">Pneumologia</div>
+    <div class="bar-wrap"><div class="bar" style="width:32%; background:var(--red)"></div></div>
+    <div class="perc">32%</div>
+    <span class="prio-tag prio-high">prioridade alta</span>
+  </div>
+  <div class="revisao-item">
+    <div class="revisao-area">CLÍNICA</div>
+    <div class="revisao-subject">Cardiologia</div>
+    <div class="bar-wrap"><div class="bar" style="width:61%; background:var(--accent)"></div></div>
+    <div class="perc">61%</div>
+    <span class="prio-tag prio-med">manter ritmo</span>
+  </div>
+  <div class="revisao-item">
+    <div class="revisao-area">CIRURGIA</div>
+    <div class="revisao-subject">Abdome agudo</div>
+    <div class="bar-wrap"><div class="bar" style="width:45%; background:var(--yellow)"></div></div>
+    <div class="perc">45%</div>
+    <span class="prio-tag prio-med">atenção</span>
+  </div>
+  <div class="revisao-item">
+    <div class="revisao-area">PEDIATRIA</div>
+    <div class="revisao-subject">Neonatologia</div>
+    <div class="bar-wrap"><div class="bar" style="width:38%; background:var(--red)"></div></div>
+    <div class="perc">38%</div>
+    <span class="prio-tag prio-high">prioridade alta</span>
+  </div>
+  <div class="revisao-item">
+    <div class="revisao-area">GINECO</div>
+    <div class="revisao-subject">Pré-natal</div>
+    <div class="bar-wrap"><div class="bar" style="width:78%; background:var(--green)"></div></div>
+    <div class="perc">78%</div>
+    <span class="prio-tag prio-ok">em dia</span>
+  </div>
+  <div class="revisao-item">
+    <div class="revisao-area">CLÍNICA</div>
+    <div class="revisao-subject">Farmacologia clínica</div>
+    <div class="bar-wrap"><div class="bar" style="width:55%; background:var(--purple)"></div></div>
+    <div class="perc">55%</div>
+    <span class="prio-tag prio-med">atenção</span>
+  </div>
+</div>
+
+<!-- Chat com IA -->
+<div class="chat-section">
+  <div class="card-title"><div class="card-title-dot" style="background:var(--yellow)"></div>Pergunte à IA sobre seus estudos</div>
+  <div class="chat-messages" id="chat-messages">
+    <div class="msg msg-ai">Olá, Matheus! Posso te ajudar com dúvidas clínicas, sugerir o que revisar ou explicar algum tema do internato. O que precisa?</div>
+  </div>
+  <div class="chat-input-row">
+    <input class="chat-input" id="chat-input" placeholder="Ex: quais os critérios de Ranson para pancreatite?" onkeydown="if(event.key==='Enter') enviarMensagem()">
+    <button class="btn" onclick="enviarMensagem()">Enviar</button>
+  </div>
+</div>
+
+<div class="footer">PAINEL DE TAREFAS · MATHEUS</div>
+
+<script>
+  // Data atual
+  const dias = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+  const meses = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+  const agora = new Date();
+  document.getElementById('current-date').textContent =
+    `${dias[agora.getDay()]}, ${agora.getDate()} de ${meses[agora.getMonth()]} de ${agora.getFullYear()}`;
+
+  // Saudação
+  const hora = agora.getHours();
+  const saudacao = hora < 12 ? 'Bom dia' : hora < 18 ? 'Boa tarde' : 'Boa noite';
+  document.querySelector('.header-name').textContent = `${saudacao}, Matheus`;
+
+  // Salvar chave API
+  let apiKey = localStorage.getItem('anthropic_key') || '';
+  if (apiKey) {
+    document.getElementById('api-key').value = apiKey;
+    document.getElementById('api-status').textContent = '✓ Chave salva';
+    document.getElementById('api-status').style.color = 'var(--green)';
+  }
+
+  function salvarChave() {
+    apiKey = document.getElementById('api-key').value.trim();
+    if (!apiKey) return;
+    localStorage.setItem('anthropic_key', apiKey);
+    const st = document.getElementById('api-status');
+    st.textContent = '✓ Chave salva com sucesso';
+    st.style.color = 'var(--green)';
+  }
+
+  // Toggle tarefa
+  function toggleTask(el) {
+    el.classList.toggle('done');
+    const text = el.nextElementSibling;
+    text.classList.toggle('done');
+    const tag = text.nextElementSibling;
+    if (el.classList.contains('done')) {
+      tag.textContent = 'feito';
+      tag.className = 'task-tag tag-done';
+    } else {
+      tag.textContent = 'pendente';
+      tag.className = 'task-tag tag-pending';
+    }
+  }
+
+  // Dados de revisão para contexto da IA
+  const revisoes = [
+    { area: 'Clínica Médica', assunto: 'Pneumologia', perc: 32 },
+    { area: 'Clínica Médica', assunto: 'Cardiologia', perc: 61 },
+    { area: 'Cirurgia', assunto: 'Abdome agudo', perc: 45 },
+    { area: 'Pediatria', assunto: 'Neonatologia', perc: 38 },
+    { area: 'Ginecologia', assunto: 'Pré-natal', perc: 78 },
+    { area: 'Clínica Médica', assunto: 'Farmacologia clínica', perc: 55 },
+  ];
+
+  const agenda = [
+    { hora: '07:00', titulo: 'Plantão — Clínica Médica', local: 'HGE, até 13:00' },
+    { hora: '15:00', titulo: 'Reunião de grupo — caso clínico', local: 'Sala 3, FCE' },
+    { hora: '18:00', titulo: 'Seminário — Urgência e Emergência', local: 'Anfiteatro B' },
+  ];
+
+  function buildContexto() {
+    const rev = revisoes.map(r => `${r.assunto} (${r.area}): ${r.perc}% de acertos`).join('; ');
+    const ag = agenda.map(a => `${a.hora} - ${a.titulo} (${a.local})`).join('; ');
+    return `Você é um assistente médico educacional para um interno de medicina. O estudante se chama Matheus, está no 10º semestre cursando internato em todas as áreas simultaneamente (Clínica Médica, Cirurgia, Pediatria, Ginecologia/Obstetrícia). Seu desempenho atual nas revisões: ${rev}. Agenda de hoje: ${ag}. Responda sempre em português, de forma clara, objetiva e baseada em evidências clínicas atuais. Quando sugerir revisões, priorize os assuntos com menor porcentagem de acertos.`;
+  }
+
+  // Gerar sugestão diária
+  async function gerarSugestao() {
+    const key = document.getElementById('api-key').value.trim() || apiKey;
+    if (!key) {
+      document.getElementById('api-status').textContent = '⚠ Insira sua chave API primeiro';
+      document.getElementById('api-status').style.color = 'var(--yellow)';
+      return;
+    }
+
+    const box = document.getElementById('ai-suggestion');
+    box.innerHTML = `<div class="ai-loading"><div class="dot-pulse"><span></span><span></span><span></span></div>Gerando sugestão personalizada...</div>`;
+
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': key,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-6',
+          max_tokens: 1000,
+          system: buildContexto(),
+          messages: [{
+            role: 'user',
+            content: `Com base na minha agenda de hoje e no meu desempenho nas revisões, me dê uma sugestão objetiva e personalizada do que priorizar hoje. Considere os horários livres da agenda. Seja direto e prático, em no máximo 3 frases.`
+          }]
+        })
+      });
+
+      const data = await res.json();
+      if (data.content && data.content[0]) {
+        box.innerHTML = data.content[0].text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      } else {
+        box.innerHTML = `<span style="color:var(--red)">Erro: ${data.error?.message || 'Resposta inesperada da API'}</span>`;
+      }
+    } catch (e) {
+      box.innerHTML = `<span style="color:var(--red)">Erro de conexão com a API: ${e.message}</span>`;
+    }
+  }
+
+  // Chat com IA
+  let historico = [];
+
+  async function enviarMensagem() {
+    const input = document.getElementById('chat-input');
+    const msg = input.value.trim();
+    if (!msg) return;
+
+    const key = document.getElementById('api-key').value.trim() || apiKey;
+    if (!key) {
+      alert('Insira sua chave API primeiro.');
+      return;
+    }
+
+    input.value = '';
+    adicionarMsg(msg, 'user');
+    historico.push({ role: 'user', content: msg });
+
+    const loadingEl = adicionarMsg('...', 'ai');
+
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': key,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-6',
+          max_tokens: 1000,
+          system: buildContexto(),
+          messages: historico
+        })
+      });
+
+      const data = await res.json();
+      if (data.content && data.content[0]) {
+        const resposta = data.content[0].text;
+        historico.push({ role: 'assistant', content: resposta });
+        loadingEl.innerHTML = resposta.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      } else {
+        loadingEl.innerHTML = `<span style="color:var(--red)">Erro: ${data.error?.message || 'Resposta inesperada'}</span>`;
+      }
+    } catch (e) {
+      loadingEl.innerHTML = `<span style="color:var(--red)">Erro de conexão: ${e.message}</span>`;
+    }
+
+    const chatDiv = document.getElementById('chat-messages');
+    chatDiv.scrollTop = chatDiv.scrollHeight;
+  }
+
+  function adicionarMsg(texto, tipo) {
+    const chatDiv = document.getElementById('chat-messages');
+    const el = document.createElement('div');
+    el.className = `msg msg-${tipo}`;
+    el.textContent = texto;
+    chatDiv.appendChild(el);
+    chatDiv.scrollTop = chatDiv.scrollHeight;
+    return el;
+  }
+</script>
+</body>
+</html>
